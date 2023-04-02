@@ -1,16 +1,27 @@
 import os
-from environs import Env
+# from environs import Env
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from redis_om import get_redis_connection, HashModel
 
-env = Env()
-env.read_env()
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
+# print(os.environ)
+
+if os.path.isfile('env.py'):
+    import env
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
 
 app = FastAPI()
+
+# to allow cross origin requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://127.0.0.1:3000"],
+    allow_methods=["*"],  # allow all methods
+    allow_headers=["*"],  # allow all headers
+)
 
 # creating a redis connection
 redis = get_redis_connection(
@@ -28,15 +39,15 @@ class Product(HashModel):
     """
     name: str
     price: float
-    quantity_available: int
+    quantity: int
 
     class Meta:
         database = redis
 
 
 @app.get("/products")
-def all_products():
+def all():
     """
     Get all products from the redis db
     """
-    return []
+    return Product.all_pks()
