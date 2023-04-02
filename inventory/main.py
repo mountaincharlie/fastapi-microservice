@@ -45,9 +45,52 @@ class Product(HashModel):
         database = redis
 
 
+# ---- CRUD functionality for products
+
+def format(pk: str):
+    """
+    Takes pk as a string and formats the output for getting
+    a product
+    """
+    product = Product.get(pk)
+    return {
+        "id": pk,
+        "name": product.name,
+        "price": product.price,
+        "quantity": product.quantity
+    }
+
+
 @app.get("/products")
 def all():
     """
     Get all products from the redis db
+    Returns a list of all products formatted with format() 
     """
-    return Product.all_pks()
+    return [format(pk) for pk in Product.all_pks()]
+
+
+@app.post("/products")
+def create(product: Product):
+    """
+    Creates a product
+    Uses post method to products endpoint
+    Takes in product (according to the Product model) and returns product.save()
+    """
+    return product.save()
+
+
+@app.get('/products/{pk}')
+def get(pk: str):
+    """
+    Gets the product by pk
+    """
+    return Product.get(pk)
+
+
+@app.delete('/products/{pk}')
+def delete(pk: str):
+    """
+    Deletes a product of particular pk
+    """
+    return Product.delete(pk)
