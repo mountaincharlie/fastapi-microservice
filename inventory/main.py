@@ -1,11 +1,8 @@
 import os
-# from environs import Env
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from redis_om import get_redis_connection, HashModel
-
-# print(os.environ)
 
 if os.path.isfile('env.py'):
     import env
